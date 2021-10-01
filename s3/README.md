@@ -2,50 +2,98 @@
 
 ## Input Variables
 
- | Name               | Type   | Default                                  | Example                               | Notes                                         |
- | ------------------ | ------ | ---------------------------------------- | ------------------------------------- | --------------------------------------------- |
- | region             | string | us-east-1                                |                                       |                                               |
- | bucket_prefix      | string |                                          | test-1                                | Either this or `bucket_name` is required      |
- | bucket_prefix      | string |                                          | test-123-asda                         |                                               |
- | env                | string | non-prod                                 | prod                                  | `prod` will support replication in the future |
- | user_tags          | object |                                          | `see below`                           |                                               |
- | octopus_tags       | object |                                          | `see below`                           | auto set at octopus                           |
+ | Name               | Type         | Default  | Example                               | Notes                                         |
+ | ------------------ | ------------ | -------- | ------------------------------------- | --------------------------------------------- |
+ | bucket_prefix      | string       |          | test-bucket-                          |  Creates a unique bucket name                 |
+ | force_destroy      | bool         |          | false                                 |                                               |
+ | lifecycle_rule     | list(object) |          | `see below`                           |                                               |
 
-For `user_tags`, refer <https://github.com/variant-inc/lazy-terraform/tree/master/submodules/tags>
+For `lifecycle_rule` need to set in terraform.tfvars.json. Set the variable as
 
-`octopus_tags` are auto set at octopus. Set the variable as
-
-terraform.tfvars.
-
-```json
-{
-    "bucket_prefix":"test-ralph",
-    "lifecycle_rule":{
-       "prefix":"config/",
-       "enabled":true,
-       "abort_incomplete_multipart_upload_days":30,
-       "transition_storage_class":"STANDARD_IA",
-       "noncurrent_version_transition":{
-          "days":60,
-          "storage_class":"GLACIER"
-       },
-       "noncurrent_version_expiration_days:": 90
-    },
-    "user_tags": {
-        "team": "devops",
-        "purpose": "dms-testing",
-        "owner": "devops"
-      },
-      "octopus_tags": {
-        "project": "n/a",
-        "space": "DevOps",
-        "environment": "dpl",
-        "project_group": "n/a",
-        "release_channel": "n/a"
-      }
- }
+```bash
+variable "lifecycle_rule" {
+  type = list(object({
+    prefix = string
+    enabled = bool
+    abort_incomplete_multipart_upload_days = number
+    transition_storage_class = object({
+      days = number
+      storage_class = string
+    })
+    noncurrent_version_transition = object({
+      days = number
+      storage_class = string
+    })
+    noncurrent_version_expiration_days = number
+  }))
+  description = "A configuration of object lifecycle management"
+  default = []
+}
 ```
 
 ## Examples
 
-Refer here [Link](./tests/main.tf)
+```terraform
+module "aws_s3" {
+  source = "github.com/variant-inc/terraform-aws-s3//s3?ref=v1"
+
+  bucket_prefix  = "test-bucket-"
+
+  force_destroy  = false
+
+  lifecycle_rule = [{
+      "prefix":"config/",
+      "enabled":true,
+      "abort_incomplete_multipart_upload_days":30,
+      "transition_storage_class":{
+      "days":30,
+      "storage_class":"STANDARD_IA"
+    },
+      "noncurrent_version_transition":{
+        "days":60,
+        "storage_class":"GLACIER"
+      },
+      "noncurrent_version_expiration_days": 90
+  }]
+}
+```
+
+## Files
+
+terraform.tfvars.json
+
+```json
+{
+    "bucket_prefix":"test-bucket-",
+    "force_destroy": false,
+    "lifecycle_rule": [{
+       "prefix":"config/",
+       "enabled":true,
+       "abort_incomplete_multipart_upload_days":30,
+       "transition_storage_class":{
+        "days":30,
+        "storage_class":"STANDARD_IA"
+     },
+       "noncurrent_version_transition":{
+          "days":60,
+          "storage_class":"GLACIER"
+       },
+       "noncurrent_version_expiration_days": 90
+    }]
+ }
+```
+
+provider.tf
+
+```bash
+provider "aws" {
+  region = "us-west-2"
+  default_tags {
+    tags = {
+        team: "DevOps",
+        purpose: "s3",
+        owner: "Bob"
+      }
+  }
+}
+```

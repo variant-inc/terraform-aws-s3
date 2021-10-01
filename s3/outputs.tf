@@ -4,6 +4,6 @@ output "bucket_name" {
 }
 
 output "bucket_arn" {
-  value       = "arn:aws:s3:::${local.name}"
+  value       = aws_s3_bucket.bucket.arn
   description = "ARN of the bucket name + prefix"
 }
