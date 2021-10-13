@@ -4,6 +4,7 @@
 ### Terraform ###
 # Local .terraform directories
 **/.terraform/*
+**/.terraform.lock.hcl
 
 # .tfstate files
 *.tfstate
@@ -18,6 +19,7 @@ crash.log
 # to change depending on the environment.
 #
 *.tfvars
+*.tfvars.json
 
 # Ignore override files as they are usually used to override resources locally and so
 # are not checked in
@@ -31,9 +33,14 @@ override.tf.json
 
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
 # example: *tfplan*
+.terraform*.yaml
+.terraform.*.yaml
+
+tfplan
 
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
 
+tfplan
 # End of https://www.toptal.com/developers/gitignore/api/terraform
