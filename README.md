@@ -1,12 +1,13 @@
-# Terraform S3 Bucket
-- [Terraform S3 Bucket](#terraform-s3-bucket)
+# Terraform S3 Bucket module
+
+- [Terraform S3 Bucket module](#terraform-s3-bucket-module)
   - [Input Variables](#input-variables)
-  - [Vars definitions](#vars-definitions)
-      - [Lifecycle](#lifecycle)
-      - [Replication](#replication)
-      - [Versioning](#versioning)
-      - [Encryption](#encryption)
-      - [Public access](#public-access)
+  - [Variable definitions](#variable-definitions)
+      - [lifecycle_rule](#lifecycle_rule)
+      - [replication_configuration](#replication_configuration)
+      - [versioning](#versioning)
+      - [server_side_encryption_configuration](#server_side_encryption_configuration)
+      - [public_access_block](#public_access_block)
   - [Examples](#examples)
       - [`main.tf`](#maintf)
       - [`terraform.tfvars.json`](#terraformtfvarsjson)
@@ -28,9 +29,11 @@
 | public_access_block | object | `see vars.tf` | `see below` |  |
 | bucket_policy | list(any) | [] | `see below` | additional bucket policy statement |
 
-## Vars definitions
-#### Lifecycle
-For `lifecycle_rule` set variable in `terraform.tfvars.json` as:
+## Variable definitions
+#### lifecycle_rule
+Controlling bucket lifecycle rules, zero or more supported.
+Each rule object has to have at least one of actions specified, others can be ommited: `expiration`, `abort_incomplete_multipart_upload_days`, `transition_storage_class`, `noncurrent_version_transition`, `noncurrent_version_expiration_days`.
+Storage classes for transition: `STANDARD`, `REDUCED_REDUNDANCY`, `ONEZONE_IA`, `INTELLIGENT_TIERING`, `GLACIER`, `DEEP_ARCHIVE` or `STANDARD_IA`.
 
 ```json
 "lifecycle_rule": [{
@@ -52,8 +55,16 @@ For `lifecycle_rule` set variable in `terraform.tfvars.json` as:
   "noncurrent_version_expiration_days": <days for noncurrent version expiration>
 }]
 ```
-#### Replication
-For `replication_configuration` set variable in `terraform.tfvars.json` as:
+
+Default:
+```json
+"lifecycle_rule": []
+```
+
+#### replication_configuration
+Controlling bucket replication configuration, zero or one configuration supported.
+`filter` can be ommited or leave prefix as `""` for replication of whole bucket.
+TODO: `role` will be able to ommit once code is ready to automatically create role.
 ```json
 "replication_configuration": [{
   "role": "<ARN of Replication role>",
@@ -69,16 +80,45 @@ For `replication_configuration` set variable in `terraform.tfvars.json` as:
   }
 }]
 ```
-#### Versioning
-For `versioning` set variable in `terraform.tfvars.json` or ignore it as this is set to be default as:
+
+Default:
+```json
+"replication_configuration": []
+```
+#### versioning
+Controll bucket versioning.
+```json
+"versioning": {
+  "enabled": <true or false>,
+  "mfa_delete": <true or false>
+}
+```
+
+Default:
 ```json
 "versioning": {
   "enabled": true,
   "mfa_delete": false
 }
 ```
-#### Encryption
-For `server_side_encryption_configuration` set variable in `terraform.tfvars.json` or ignore it as this is set to be default:
+
+#### server_side_encryption_configuration
+Controlling bucket encryption.
+If `sse_algorithm` is `aws:kms`, `kms_master_key_id` can be specified or ommited.
+If `kms_master_key_id` is ommited it defaults to `aws/s3`.
+```json
+"server_side_encryption_configuration": {
+  "rule": {
+    "apply_server_side_encryption_by_default": {
+      "sse_algorithm": "<AES-256 or aws:kms>",
+      "kms_master_key_id": "<has to be set if sse_algorithm is aws:kms>"
+    },
+    "bucket_key_enabled": <true or false>
+  }
+}
+```
+
+Default:
 ```json
 "server_side_encryption_configuration": {
   "rule": {
@@ -90,8 +130,18 @@ For `server_side_encryption_configuration` set variable in `terraform.tfvars.jso
 }
 ```
 
-#### Public access
-Customize public access block
+#### public_access_block
+Controlling public access of a bucket.
+```json
+"public_access_block": {
+  "block_public_acls": <true or false>,
+  "block_public_policy": <true or false>,
+  "ignore_public_acls": <true or false>,
+  "restrict_public_buckets": <true or false>
+}
+```
+
+Default:
 ```json
 "public_access_block": {
   "block_public_acls": true,
@@ -103,9 +153,9 @@ Customize public access block
 
 ## Examples
 #### `main.tf`
-```hcl
+```terraform
 module "aws_s3" {
-  source = "github.com/variant-inc/terraform-aws-s3//s3?ref=v1"
+  source = "github.com/variant-inc/terraform-aws-s3?ref=v2"
 
   bucket_prefix       = var.bucket_prefix
   acl                 = var.acl
@@ -124,23 +174,58 @@ module "aws_s3" {
 
 ```json
 {
-    "bucket_prefix":"test-bucket-",
-    "force_destroy": false,
-    "lifecycle_rule": [{
-       "prefix":"config/",
-       "enabled":true,
-       "abort_incomplete_multipart_upload_days":30,
-       "transition_storage_class":{
-        "days":30,
-        "storage_class":"STANDARD_IA"
-     },
-       "noncurrent_version_transition":{
-          "days":60,
-          "storage_class":"GLACIER"
-       },
-       "noncurrent_version_expiration_days": 90
-    }]
- }
+  "bucket_prefix":"test-bucket-",
+  "force_destroy": false,
+  "lifecycle_rule": [{
+    "prefix": "staged/",
+    "enabled": true,
+    "abort_incomplete_multipart_upload_days": 1,
+    "expiration": {
+      "days": 183,
+      "expired_object_delete_marker": true
+    },
+    "transition_storage_class": {
+      "days": 7,
+      "storage_class": "INTELLIGENT_TIERING"
+    },
+    "noncurrent_version_transition": {
+      "days": 15,
+      "storage_class": "STANDARD_IA"
+    },
+    "noncurrent_version_expiration_days": 92
+  }],
+  "replication_configuration": [{
+    "role": "arn:aws:iam::319244236588:role/service-role/s3-replication-test-role",
+    "rules": {
+      "delete_marker_replication_status": "Enabled",
+      "destination": {
+        "bucket": "test-bucket-replica"
+      },
+      "filter": {
+        "prefix": "some_prefix/"
+      },
+      "status": "Enabled"
+    }
+  }],
+  "versioning": {
+    "enabled": true,
+    "mfa_delete": false
+  },
+  "server_side_encryption_configuration": {
+    "rule": {
+      "apply_server_side_encryption_by_default": {
+        "sse_algorithm": "AES-256"
+      },
+      "bucket_key_enabled": false
+    }
+  },
+  "public_access_block": {
+    "block_public_acls": true,
+    "block_public_policy": true,
+    "ignore_public_acls": true,
+    "restrict_public_buckets": true
+  }
+}
 ```
 
 #### `provider.tf`
