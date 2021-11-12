@@ -4,20 +4,7 @@ variable "bucket_prefix" {
 }
 
 variable "lifecycle_rule" {
-  type = list(object({
-    prefix                                 = string
-    enabled                                = bool
-    abort_incomplete_multipart_upload_days = number
-    transition_storage_class = object({
-      days          = number
-      storage_class = string
-    })
-    noncurrent_version_transition = object({
-      days          = number
-      storage_class = string
-    })
-    noncurrent_version_expiration_days = number
-  }))
+  type = list(any)
   description = "A configuration of object lifecycle management"
   default     = []
 }
@@ -51,7 +38,7 @@ variable "server_side_encryption_configuration" {
   default = {
     rule = {
       apply_server_side_encryption_by_default = {
-        sse_algorithm = "AES-256"
+        sse_algorythm = "AES256"
       }
       bucket_key_enabled = false
     }
@@ -88,6 +75,6 @@ variable "public_access_block" {
 
 variable "bucket_policy" {
   type = list(any)
-  description = "Additional bucket policy statements"
+  description = "Additional bucket policy statements."
   default = []
 }

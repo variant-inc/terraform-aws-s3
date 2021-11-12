@@ -3,11 +3,15 @@
 - [Terraform S3 Bucket module](#terraform-s3-bucket-module)
   - [Input Variables](#input-variables)
   - [Variable definitions](#variable-definitions)
+      - [bucket_prefix](#bucket_prefix)
+      - [force_destroy](#force_destroy)
       - [lifecycle_rule](#lifecycle_rule)
       - [replication_configuration](#replication_configuration)
       - [versioning](#versioning)
       - [server_side_encryption_configuration](#server_side_encryption_configuration)
+      - [acl](#acl)
       - [public_access_block](#public_access_block)
+      - [bucket_policy](#bucket_policy)
   - [Examples](#examples)
       - [`main.tf`](#maintf)
       - [`terraform.tfvars.json`](#terraformtfvarsjson)
@@ -20,7 +24,7 @@
 | Name       | Type      | Default     | Example         | Notes     |
 | ---------- | --------- | ------------| --------------- | --------- |
 | bucket_prefix | string | N/A | test-bucket- | Creates a unique bucket name |
-| force_destroy | bool | false | true | |
+| force_destroy | bool | `false` | `true` | |
 | lifecycle_rule | list(object) | [] | `see below` | |
 | replication_configuration | list(any) | [] | `see below` |  |
 | versioning | object | `see vars.tf` | `see below` |  |
@@ -30,6 +34,23 @@
 | bucket_policy | list(any) | [] | `see below` | additional bucket policy statement |
 
 ## Variable definitions
+#### bucket_prefix
+Prefix for bucket name, AWS will append it with creation time and serial number.
+```json
+"bucket_prefix": "<bucket prefix>"
+```
+
+#### force_destroy
+Allow force destruction of bucket, allows destroy even when bucket is not empty.
+```json
+"force_destroy": <true or false>
+```
+
+Default:
+```json
+"force_destroy": false
+```
+
 #### lifecycle_rule
 Controlling bucket lifecycle rules, zero or more supported.
 Each rule object has to have at least one of actions specified, others can be ommited: `expiration`, `abort_incomplete_multipart_upload_days`, `transition_storage_class`, `noncurrent_version_transition`, `noncurrent_version_expiration_days`.
@@ -40,18 +61,18 @@ Storage classes for transition: `STANDARD`, `REDUCED_REDUNDANCY`, `ONEZONE_IA`, 
   "prefix": "<prefix on which to apply rule>",
   "enabled": <true or false>,
   "abort_incomplete_multipart_upload_days": <days for deletion of failed multipar uploads, minimum 1>,
-  "expiration": {
+  "expiration": [{
     "days": <days for current version expiration>,
     "expired_object_delete_marker": <true or false>
-  },
-  "transition_storage_class": {
+  }],
+  "transition_storage_class": [{
     "days": <days for current version transition>,
     "storage_class": "<storage class for current version transition>"
-  },
-  "noncurrent_version_transition": {
+  }],
+  "noncurrent_version_transition": [{
     "days": <days for noncurrent version transition>,
     "storage_class": "<storage class for noncurrent version transition>"
-  },
+  }],
   "noncurrent_version_expiration_days": <days for noncurrent version expiration>
 }]
 ```
@@ -64,7 +85,7 @@ Default:
 #### replication_configuration
 Controlling bucket replication configuration, zero or one configuration supported.
 `filter` can be ommited or leave prefix as `""` for replication of whole bucket.
-TODO: `role` will be able to ommit once code is ready to automatically create role.
+If `role` is ommitted terraform automatically creates role for replication.
 ```json
 "replication_configuration": [{
   "role": "<ARN of Replication role>",
@@ -86,7 +107,7 @@ Default:
 "replication_configuration": []
 ```
 #### versioning
-Controll bucket versioning.
+Controlling bucket versioning.
 ```json
 "versioning": {
   "enabled": <true or false>,
@@ -130,6 +151,18 @@ Default:
 }
 ```
 
+#### acl
+Controlling bucket canned ACL.
+https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html#canned-acl
+```json
+"acl": "<canned acl from list on link>"
+```
+
+Default:
+```json
+"acl": "private"
+```
+
 #### public_access_block
 Controlling public access of a bucket.
 ```json
@@ -149,6 +182,30 @@ Default:
   "ignore_public_acls": true,
   "restrict_public_buckets": true
 }
+```
+
+#### bucket_policy
+> **WARNING**: Do not use for now, further investigation needed.
+
+Additional bucket policy statements.
+Default policy allows only SSL requests.
+```json
+"bucket_policy": [
+  {
+    "Sid" : "<policy SID>",
+    "Effect" : "<Allow or Deny>",
+    "Principal" : "<single or list of principals>",
+    "Action" : "<single action or list of actions>",
+    "Condition" : {
+      <any kind of supported condition or remove this block>
+    }
+  }
+]
+```
+
+Default:
+```json
+"bucket_policy": []
 ```
 
 ## Examples
@@ -176,22 +233,23 @@ module "aws_s3" {
 {
   "bucket_prefix":"test-bucket-",
   "force_destroy": false,
+  "acl": "private",
   "lifecycle_rule": [{
     "prefix": "staged/",
     "enabled": true,
     "abort_incomplete_multipart_upload_days": 1,
-    "expiration": {
+    "expiration": [{
       "days": 183,
       "expired_object_delete_marker": true
-    },
-    "transition_storage_class": {
+    }],
+    "transition_storage_class": [{
       "days": 7,
       "storage_class": "INTELLIGENT_TIERING"
-    },
-    "noncurrent_version_transition": {
+    }],
+    "noncurrent_version_transition": [{
       "days": 15,
       "storage_class": "STANDARD_IA"
-    },
+    }],
     "noncurrent_version_expiration_days": 92
   }],
   "replication_configuration": [{
@@ -214,7 +272,7 @@ module "aws_s3" {
   "server_side_encryption_configuration": {
     "rule": {
       "apply_server_side_encryption_by_default": {
-        "sse_algorithm": "AES-256"
+        "sse_algorithm": "AES256"
       },
       "bucket_key_enabled": false
     }
@@ -224,7 +282,21 @@ module "aws_s3" {
     "block_public_policy": true,
     "ignore_public_acls": true,
     "restrict_public_buckets": true
-  }
+  },
+  "bucket_policy": [
+    {
+      "Sid" : "test_allow",
+      "Effect" : "Allow",
+      "Principal" : "*",
+      "Action" : "s3:*"
+    },
+    {
+      "Sid" : "test_deny",
+      "Effect" : "Deny",
+      "Principal" : "*",
+      "Action" : "s3:GetObject"
+    }
+  ]
 }
 ```
 
