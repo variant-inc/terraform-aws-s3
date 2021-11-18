@@ -6,11 +6,6 @@
       - [bucket_prefix](#bucket_prefix)
       - [force_destroy](#force_destroy)
       - [lifecycle_rule](#lifecycle_rule)
-      - [replication_configuration](#replication_configuration)
-      - [versioning](#versioning)
-      - [server_side_encryption_configuration](#server_side_encryption_configuration)
-      - [acl](#acl)
-      - [public_access_block](#public_access_block)
       - [bucket_policy](#bucket_policy)
   - [Examples](#examples)
       - [`main.tf`](#maintf)
@@ -26,11 +21,6 @@
 | bucket_prefix | string | N/A | test-bucket- | Creates a unique bucket name |
 | force_destroy | bool | `false` | `true` | |
 | lifecycle_rule | list(object) | [] | `see below` | |
-| replication_configuration | list(any) | [] | `see below` |  |
-| versioning | object | `see vars.tf` | `see below` |  |
-| server_side_encryption_configuration | object | `see vars.tf` | `see below` |  |
-| acl | string | `private` | `authenticated-read` | https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html#canned-acl |
-| public_access_block | object | `see vars.tf` | `see below` |  |
 | bucket_policy | list(any) | [] | `see below` | additional bucket policy statement |
 
 ## Variable definitions
@@ -82,108 +72,6 @@ Default:
 "lifecycle_rule": []
 ```
 
-#### replication_configuration
-Controlling bucket replication configuration, zero or one configuration supported.
-`filter` can be ommited or leave prefix as `""` for replication of whole bucket.
-If `role` is ommitted terraform automatically creates role for replication.
-```json
-"replication_configuration": [{
-  "role": "<ARN of Replication role>",
-  "rules": {
-    "delete_marker_replication_status": "<Enabled or Disabled>",
-    "destination": {
-      "bucket": "<destination bucket name>"
-    },
-    "filter": {
-      "prefix": "<prefix to replicate>"
-    },
-    "status": "<Enabled or Disabled>"
-  }
-}]
-```
-
-Default:
-```json
-"replication_configuration": []
-```
-#### versioning
-Controlling bucket versioning.
-```json
-"versioning": {
-  "enabled": <true or false>,
-  "mfa_delete": <true or false>
-}
-```
-
-Default:
-```json
-"versioning": {
-  "enabled": true,
-  "mfa_delete": false
-}
-```
-
-#### server_side_encryption_configuration
-Controlling bucket encryption.
-If `sse_algorithm` is `aws:kms`, `kms_master_key_id` can be specified or ommited.
-If `kms_master_key_id` is ommited it defaults to `aws/s3`.
-```json
-"server_side_encryption_configuration": {
-  "rule": {
-    "apply_server_side_encryption_by_default": {
-      "sse_algorithm": "<AES-256 or aws:kms>",
-      "kms_master_key_id": "<has to be set if sse_algorithm is aws:kms>"
-    },
-    "bucket_key_enabled": <true or false>
-  }
-}
-```
-
-Default:
-```json
-"server_side_encryption_configuration": {
-  "rule": {
-    "apply_server_side_encryption_by_default": {
-      "sse_algorithm": "AES-256"
-    },
-    "bucket_key_enabled": false
-  }
-}
-```
-
-#### acl
-Controlling bucket canned ACL.
-https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html#canned-acl
-```json
-"acl": "<canned acl from list on link>"
-```
-
-Default:
-```json
-"acl": "private"
-```
-
-#### public_access_block
-Controlling public access of a bucket.
-```json
-"public_access_block": {
-  "block_public_acls": <true or false>,
-  "block_public_policy": <true or false>,
-  "ignore_public_acls": <true or false>,
-  "restrict_public_buckets": <true or false>
-}
-```
-
-Default:
-```json
-"public_access_block": {
-  "block_public_acls": true,
-  "block_public_policy": true,
-  "ignore_public_acls": true,
-  "restrict_public_buckets": true
-}
-```
-
 #### bucket_policy
 > **WARNING**: Do not use for now, further investigation needed.
 
@@ -212,18 +100,12 @@ Default:
 #### `main.tf`
 ```terraform
 module "aws_s3" {
-  source = "github.com/variant-inc/terraform-aws-s3?ref=v2"
+  source = "github.com/variant-inc/terraform-aws-s3?ref=v1"
 
-  bucket_prefix       = var.bucket_prefix
-  acl                 = var.acl
-  force_destroy       = var.force_destroy
-  bucket_policy       = var.bucket_policy
-  public_access_block = var.public_access_block
-
-  lifecycle_rule                       = var.lifecycle_rule
-  replication_configuration            = var.replication_configuration
-  versioning                           = var.versioning
-  server_side_encryption_configuration = var.server_side_encryption_configuration
+  bucket_prefix   = var.bucket_prefix
+  force_destroy   = var.force_destroy
+  bucket_policy   = var.bucket_policy
+  lifecycle_rule  = var.lifecycle_rule
 }
 ```
 
@@ -233,7 +115,6 @@ module "aws_s3" {
 {
   "bucket_prefix":"test-bucket-",
   "force_destroy": false,
-  "acl": "private",
   "lifecycle_rule": [{
     "prefix": "staged/",
     "enabled": true,
@@ -252,37 +133,6 @@ module "aws_s3" {
     }],
     "noncurrent_version_expiration_days": 92
   }],
-  "replication_configuration": [{
-    "role": "arn:aws:iam::319244236588:role/service-role/s3-replication-test-role",
-    "rules": {
-      "delete_marker_replication_status": "Enabled",
-      "destination": {
-        "bucket": "test-bucket-replica"
-      },
-      "filter": {
-        "prefix": "some_prefix/"
-      },
-      "status": "Enabled"
-    }
-  }],
-  "versioning": {
-    "enabled": true,
-    "mfa_delete": false
-  },
-  "server_side_encryption_configuration": {
-    "rule": {
-      "apply_server_side_encryption_by_default": {
-        "sse_algorithm": "AES256"
-      },
-      "bucket_key_enabled": false
-    }
-  },
-  "public_access_block": {
-    "block_public_acls": true,
-    "block_public_policy": true,
-    "ignore_public_acls": true,
-    "restrict_public_buckets": true
-  },
   "bucket_policy": [
     {
       "Sid" : "test_allow",
@@ -297,6 +147,14 @@ module "aws_s3" {
       "Action" : "s3:GetObject"
     }
   ]
+}
+```
+
+Basic
+#####
+```json
+{
+  "bucket_prefix":"test-bucket-"
 }
 ```
 
