@@ -3,16 +3,16 @@
 - [Terraform S3 Bucket](#terraform-s3-bucket)
   - [Input Variables](#input-variables)
   - [Variable definitions](#variable-definitions)
-      - [bucket_prefix](#bucket_prefix)
-      - [force_destroy](#force_destroy)
-      - [lifecycle_rule](#lifecycle_rule)
-      - [bucket_policy](#bucket_policy)
+    - [bucket_prefix](#bucket_prefix)
+    - [force_destroy](#force_destroy)
+    - [lifecycle_rule](#lifecycle_rule)
+    - [bucket_policy](#bucket_policy)
   - [Examples](#examples)
-      - [`main.tf`](#maintf)
-      - [`terraform.tfvars.json`](#terraformtfvarsjson)
-      - [`provider.tf`](#providertf)
-      - [`variables.tf`](#variablestf)
-      - [`outputs.tf`](#outputstf)
+    - [`main.tf`](#maintf)
+    - [`terraform.tfvars.json`](#terraformtfvarsjson)
+    - [`provider.tf`](#providertf)
+    - [`variables.tf`](#variablestf)
+    - [`outputs.tf`](#outputstf)
 
 ## Input Variables
 
@@ -24,13 +24,13 @@
 | bucket_policy | list(any) | [] | `see below` | additional bucket policy statement |
 
 ## Variable definitions
-#### bucket_prefix
+### bucket_prefix
 Prefix for bucket name, AWS will append it with creation time and serial number.
 ```json
 "bucket_prefix": "<bucket prefix>"
 ```
 
-#### force_destroy
+### force_destroy
 Allow force destruction of bucket, allows destroy even when bucket is not empty.
 ```json
 "force_destroy": <true or false>
@@ -41,7 +41,7 @@ Default:
 "force_destroy": false
 ```
 
-#### lifecycle_rule
+### lifecycle_rule
 Controlling bucket lifecycle rules, zero or more supported.
 Each rule object has to have at least one of actions specified, others can be ommited: `expiration`, `abort_incomplete_multipart_upload_days`, `transition_storage_class`, `noncurrent_version_transition`, `noncurrent_version_expiration_days`.
 Storage classes for transition: `STANDARD`, `REDUCED_REDUNDANCY`, `ONEZONE_IA`, `INTELLIGENT_TIERING`, `GLACIER`, `DEEP_ARCHIVE` or `STANDARD_IA`.
@@ -72,7 +72,7 @@ Default:
 "lifecycle_rule": []
 ```
 
-#### bucket_policy
+### bucket_policy
 > **WARNING**: Do not use for now, further investigation needed.
 
 Additional bucket policy statements.
@@ -97,7 +97,7 @@ Default:
 ```
 
 ## Examples
-#### `main.tf`
+### `main.tf`
 ```terraform
 module "aws_s3" {
   source = "github.com/variant-inc/terraform-aws-s3?ref=v1"
@@ -109,7 +109,7 @@ module "aws_s3" {
 }
 ```
 
-#### `terraform.tfvars.json`
+### `terraform.tfvars.json`
 
 ```json
 {
@@ -151,14 +151,13 @@ module "aws_s3" {
 ```
 
 Basic
-#####
 ```json
 {
   "bucket_prefix":"test-bucket-"
 }
 ```
 
-#### `provider.tf`
+### `provider.tf`
 
 ```terraform
 provider "aws" {
@@ -172,10 +171,10 @@ provider "aws" {
   }
 }
 ```
-#### `variables.tf`
+### `variables.tf`
 copy ones from module
 
-#### `outputs.tf`
+### `outputs.tf`
 ```terraform
 output "bucket_name" {
   value       = module.aws_s3.bucket_name
