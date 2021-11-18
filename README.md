@@ -1,6 +1,6 @@
-# Terraform S3 Bucket module
+# Terraform S3 Bucket
 
-- [Terraform S3 Bucket module](#terraform-s3-bucket-module)
+- [Terraform S3 Bucket](#terraform-s3-bucket)
   - [Input Variables](#input-variables)
   - [Variable definitions](#variable-definitions)
       - [bucket_prefix](#bucket_prefix)
