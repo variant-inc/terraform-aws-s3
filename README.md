@@ -6,11 +6,14 @@
     - [bucket_prefix](#bucket_prefix)
     - [force_destroy](#force_destroy)
     - [lifecycle_rule](#lifecycle_rule)
-    - [bucket_policy](#bucket_policy)
+- [### bucket_policy](#-bucket_policy)
+      - [bucket_policy](#bucket_policy)
   - [Examples](#examples)
     - [`main.tf`](#maintf)
     - [`terraform.tfvars.json`](#terraformtfvarsjson)
-    - [`provider.tf`](#providertf)
+- [<<<<<<< HEAD](#-head)
+- [### `provider.tf`](#-providertf)
+      - [`provider.tf`](#providertf)
     - [`variables.tf`](#variablestf)
     - [`outputs.tf`](#outputstf)
 
@@ -72,7 +75,11 @@ Default:
 "lifecycle_rule": []
 ```
 
+<<<<<<< HEAD
 ### bucket_policy
+=======
+#### bucket_policy
+>>>>>>> 6c8d370 (update on lifecycle policy)
 > **WARNING**: Do not use for now, further investigation needed.
 
 Additional bucket policy statements.
@@ -151,13 +158,21 @@ module "aws_s3" {
 ```
 
 Basic
+<<<<<<< HEAD
+=======
+#####
+>>>>>>> 6c8d370 (update on lifecycle policy)
 ```json
 {
   "bucket_prefix":"test-bucket-"
 }
 ```
 
+<<<<<<< HEAD
 ### `provider.tf`
+=======
+#### `provider.tf`
+>>>>>>> 6c8d370 (update on lifecycle policy)
 
 ```terraform
 provider "aws" {
