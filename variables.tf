@@ -4,20 +4,7 @@ variable "bucket_prefix" {
 }
 
 variable "lifecycle_rule" {
-  type = list(object({
-    prefix                                 = string
-    enabled                                = bool
-    abort_incomplete_multipart_upload_days = number
-    transition_storage_class = object({
-      days          = number
-      storage_class = string
-    })
-    noncurrent_version_transition = object({
-      days          = number
-      storage_class = string
-    })
-    noncurrent_version_expiration_days = number
-  }))
+  type        = list(any)
   description = "A configuration of object lifecycle management"
   default     = []
 }
@@ -25,4 +12,11 @@ variable "lifecycle_rule" {
 variable "force_destroy" {
   type        = bool
   description = "Force destroy true|false"
+  default     = false
+}
+
+variable "bucket_policy" {
+  type        = list(any)
+  description = "Additional bucket policy statements."
+  default     = []
 }
