@@ -6,19 +6,11 @@
     - [bucket_prefix](#bucket_prefix)
     - [force_destroy](#force_destroy)
     - [lifecycle_rule](#lifecycle_rule)
-- [### bucket_policy](#-bucket_policy)
-      - [bucket_policy](#bucket_policy)
-- [>>>>>>> 6c8d370 (update on lifecycle policy)](#-6c8d370-update-on-lifecycle-policy)
-    - [bucket_policy](#bucket_policy-1)
+    - [bucket_policy](#bucket_policy)
   - [Examples](#examples)
     - [`main.tf`](#maintf)
     - [`terraform.tfvars.json`](#terraformtfvarsjson)
-- [<<<<<<< HEAD](#-head)
-- [>>>>>>> 6c8d370 (update on lifecycle policy)](#-6c8d370-update-on-lifecycle-policy-1)
-- [### `provider.tf`](#-providertf)
-      - [`provider.tf`](#providertf)
-- [>>>>>>> 6c8d370 (update on lifecycle policy)](#-6c8d370-update-on-lifecycle-policy-2)
-    - [`provider.tf`](#providertf-1)
+    - [`provider.tf`](#providertf)
     - [`variables.tf`](#variablestf)
     - [`outputs.tf`](#outputstf)
 
@@ -80,15 +72,7 @@ Default:
 "lifecycle_rule": []
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 ### bucket_policy
-=======
-#### bucket_policy
->>>>>>> 6c8d370 (update on lifecycle policy)
-=======
-### bucket_policy
->>>>>>> 11822cb (more linting)
 > **WARNING**: Do not use for now, further investigation needed.
 
 Additional bucket policy statements.
@@ -126,7 +110,6 @@ module "aws_s3" {
 ```
 
 ### `terraform.tfvars.json`
-
 ```json
 {
   "bucket_prefix":"test-bucket-",
@@ -167,29 +150,13 @@ module "aws_s3" {
 ```
 
 Basic
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-#####
->>>>>>> 6c8d370 (update on lifecycle policy)
-=======
->>>>>>> 11822cb (more linting)
 ```json
 {
   "bucket_prefix":"test-bucket-"
 }
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 ### `provider.tf`
-=======
-#### `provider.tf`
->>>>>>> 6c8d370 (update on lifecycle policy)
-=======
-### `provider.tf`
->>>>>>> 11822cb (more linting)
-
 ```terraform
 provider "aws" {
   region = "us-east-1"
