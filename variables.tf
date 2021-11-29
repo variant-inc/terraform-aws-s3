@@ -16,7 +16,7 @@ variable "force_destroy" {
 }
 
 variable "bucket_policy" {
-  type        = list(any)
+  type        = any
   description = "Additional bucket policy statements."
   default     = []
 }
