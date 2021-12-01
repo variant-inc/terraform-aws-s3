@@ -1,13 +1,11 @@
 locals {
   # Adding resource ARN to custom policies
-  # TODO: check IAM and policy update permissions, got access denied even with admin permission and via console
-  policy = []
-  # policy = [
-  #   for i in var.bucket_policy: merge(i,  {"Resource" = [
-  #         format("arn:aws:s3:::%s", aws_s3_bucket.bucket.id),
-  #         format("arn:aws:s3:::%s/*", aws_s3_bucket.bucket.id)
-  #       ]})
-  #   ]
+  policy = [
+    for i in var.bucket_policy: merge(i,  {"Resource" = [
+          format("arn:aws:s3:::%s", aws_s3_bucket.bucket.id),
+          format("arn:aws:s3:::%s/*", aws_s3_bucket.bucket.id)
+        ]})
+    ]
 }
 
 resource "aws_s3_bucket" "bucket" {

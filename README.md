@@ -73,8 +73,6 @@ Default:
 ```
 
 ### bucket_policy
-> **WARNING**: Do not use for now, further investigation needed.
-
 Additional bucket policy statements.
 Default policy allows only SSL requests.
 ```json
@@ -134,16 +132,10 @@ module "aws_s3" {
   }],
   "bucket_policy": [
     {
-      "Sid" : "test_allow",
-      "Effect" : "Allow",
-      "Principal" : "*",
-      "Action" : "s3:*"
-    },
-    {
-      "Sid" : "test_deny",
-      "Effect" : "Deny",
-      "Principal" : "*",
-      "Action" : "s3:GetObject"
+      "Sid": "testpolicy",
+      "Effect": "Allow",
+      "Principal": {"Service": "cloudtrail.amazonaws.com"},
+      "Action": "s3:GetBucketAcl"
     }
   ]
 }
