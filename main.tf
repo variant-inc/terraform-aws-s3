@@ -12,6 +12,7 @@ resource "aws_s3_bucket" "bucket" {
   #ts:skip=AWS.S3Bucket.LM.MEDIUM.0078 need to skip this rule
 
   bucket_prefix = var.bucket_prefix
+  tags          = var.tags
   acl           = "private"
 
   lifecycle {

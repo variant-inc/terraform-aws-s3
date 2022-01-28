@@ -4,6 +4,7 @@
   - [Input Variables](#input-variables)
   - [Variable definitions](#variable-definitions)
     - [bucket_prefix](#bucket_prefix)
+    - [tags](#tags)
     - [force_destroy](#force_destroy)
     - [lifecycle_rule](#lifecycle_rule)
     - [bucket_policy](#bucket_policy)
@@ -19,6 +20,7 @@
 | Name       | Type      | Default     | Example         | Notes     |
 | ---------- | --------- | ------------| --------------- | --------- |
 | bucket_prefix | string | N/A | test-bucket- | Creates a unique bucket name |
+| tags | map(string) | {} | {"environment": "prod"} | |
 | force_destroy | bool | `false` | `true` | |
 | lifecycle_rule | list(object) | [] | `see below` | |
 | bucket_policy | list(any) | [] | `see below` | additional bucket policy statement |
@@ -28,6 +30,17 @@
 Prefix for bucket name, AWS will append it with creation time and serial number.
 ```json
 "bucket_prefix": "<bucket prefix>"
+```
+
+### tags
+Tags for created bucket.
+```json
+"tags": {<map of tag keys and values>}
+```
+
+Default:
+```json
+"tags": {}
 ```
 
 ### force_destroy
@@ -101,6 +114,7 @@ module "aws_s3" {
   source = "github.com/variant-inc/terraform-aws-s3?ref=v1"
 
   bucket_prefix   = var.bucket_prefix
+  tags            = var.tags
   force_destroy   = var.force_destroy
   bucket_policy   = var.bucket_policy
   lifecycle_rule  = var.lifecycle_rule
@@ -111,6 +125,9 @@ module "aws_s3" {
 ```json
 {
   "bucket_prefix":"test-bucket-",
+  "tags": {
+    "environment": "prod"
+  },
   "force_destroy": false,
   "lifecycle_rule": [{
     "prefix": "staged/",

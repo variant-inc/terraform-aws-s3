@@ -3,6 +3,12 @@ variable "bucket_prefix" {
   description = "Prefix of the s3 bucket"
 }
 
+variable "tags" {
+  type        = map(string)
+  description = "Tags for S3 bucket"
+  default     = {}
+}
+
 variable "lifecycle_rule" {
   type        = list(any)
   description = "A configuration of object lifecycle management"
