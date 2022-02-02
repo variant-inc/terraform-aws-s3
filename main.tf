@@ -1,17 +1,18 @@
 locals {
   # Adding resource ARN to custom policies
   policy = [
-    for i in var.bucket_policy: merge(i,  {"Resource" = [
-          format("arn:aws:s3:::%s", aws_s3_bucket.bucket.id),
-          format("arn:aws:s3:::%s/*", aws_s3_bucket.bucket.id)
-        ]})
-    ]
+    for i in var.bucket_policy : merge(i, { "Resource" = [
+      format("arn:aws:s3:::%s", aws_s3_bucket.bucket.id),
+      format("arn:aws:s3:::%s/*", aws_s3_bucket.bucket.id)
+    ] })
+  ]
 }
 
 resource "aws_s3_bucket" "bucket" {
   #ts:skip=AWS.S3Bucket.LM.MEDIUM.0078 need to skip this rule
 
   bucket_prefix = var.bucket_prefix
+  tags          = var.tags
   acl           = "private"
 
   lifecycle {
@@ -92,8 +93,6 @@ resource "aws_s3_bucket_policy" "bucket" {
   depends_on = [aws_s3_bucket_public_access_block.bucket]
   bucket     = aws_s3_bucket.bucket.id
 
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression's result to valid JSON syntax.
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Id" : "S3BucketPolicy",
