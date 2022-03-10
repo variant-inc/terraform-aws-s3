@@ -35,4 +35,5 @@ module "aws_s3" {
     }],
     "noncurrent_version_expiration_days" : 92
   }]
+  enable_bucket_notification = true
 }
