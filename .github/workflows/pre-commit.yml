@@ -10,7 +10,7 @@ jobs:
   # Max Terraform version
   getBaseVersion:
     name: Module max TF version
-    runs-on: eks
+    runs-on: hello
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -23,7 +23,7 @@ jobs:
 
   preCommitMaxVersion:
     name: Max TF pre-commit
-    runs-on: eks
+    runs-on: world
     needs: getBaseVersion
     strategy:
       fail-fast: false
