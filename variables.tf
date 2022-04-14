@@ -26,9 +26,3 @@ variable "bucket_policy" {
   description = "Additional bucket policy statements. Default policy allows only SSL requests"
   default     = []
 }
-
-variable "enable_bucket_notification" {
-  type        = bool
-  description = "Enables bucket event notification to EventBridge."
-  default     = false
-}

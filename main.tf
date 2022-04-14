@@ -118,8 +118,6 @@ resource "aws_s3_bucket_policy" "bucket" {
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  count  = var.enable_bucket_notification ? 1 : 0
-  bucket = aws_s3_bucket.bucket.id
-
-  eventbridge = var.enable_bucket_notification
+  bucket      = aws_s3_bucket.bucket.id
+  eventbridge = true
 }
