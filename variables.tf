@@ -26,3 +26,9 @@ variable "bucket_policy" {
   description = "Additional bucket policy statements. Default policy allows only SSL requests"
   default     = []
 }
+
+variable "external_accounts" {
+  type        = list(string)
+  description = "List of external account for bucket read only access"
+  default     = []
+}

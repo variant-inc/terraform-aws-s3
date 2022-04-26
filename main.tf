@@ -6,6 +6,10 @@ locals {
       format("arn:aws:s3:::%s/*", aws_s3_bucket.bucket.id)
     ] })
   ]
+
+  external_accounts = [
+    for a in var.external_accounts : format("arn:aws:iam::%s:root", a)
+  ]
 }
 
 resource "aws_s3_bucket" "bucket" {
@@ -111,8 +115,19 @@ resource "aws_s3_bucket_policy" "bucket" {
             "aws:SecureTransport" : "false"
           }
         }
-      }
+      },
       ],
+      length(local.external_accounts) == 0 ? [] : [{
+        "Sid" : "ReadOnlyExternalAccounts",
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS": local.external_accounts
+        },
+        "Action" : "s3:GetObject*",
+        "Resource" : [
+          format("arn:aws:s3:::%s/*", aws_s3_bucket.bucket.id)
+        ]
+      }],
     local.policy)
   })
 }
