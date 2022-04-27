@@ -46,6 +46,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_bucket_policy"></a> [bucket\_policy](#input\_bucket\_policy) | Additional bucket policy statements. Default policy allows only SSL requests | `any` | `[]` | no |
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | Prefix for bucket name, AWS will append it with creation time and serial number | `string` | n/a | yes |
+| <a name="input_external_accounts"></a> [external\_accounts](#input\_external\_accounts) | List of external account for bucket read only access | `list(string)` | `[]` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Allow force destruction of bucket, allows destroy even when bucket is not empty | `bool` | `false` | no |
 | <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | Controlling bucket lifecycle rules, zero or more supported [doc](docs/lifecycle\_rule.md) | `list(any)` | `[]` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags for S3 bucket | `map(string)` | `{}` | no |

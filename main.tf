@@ -121,7 +121,7 @@ resource "aws_s3_bucket_policy" "bucket" {
         "Sid" : "ReadOnlyExternalAccounts",
         "Effect" : "Allow",
         "Principal" : {
-          "AWS": local.external_accounts
+          "AWS" : local.external_accounts
         },
         "Action" : "s3:GetObject*",
         "Resource" : [
