@@ -27,8 +27,8 @@ variable "bucket_policy" {
   default     = []
 }
 
-variable "enable_bucket_notification" {
-  type        = bool
-  description = "Enables bucket event notification to EventBridge."
-  default     = false
+variable "external_accounts" {
+  type        = list(string)
+  description = "List of external account for bucket read only access"
+  default     = []
 }
