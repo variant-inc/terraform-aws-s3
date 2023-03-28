@@ -95,7 +95,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "bucket" {
-  count = length(var.lifecycle_rule) == 0 ? 0 : 1
+  count  = length(var.lifecycle_rule) == 0 ? 0 : 1
   bucket = aws_s3_bucket.bucket.id
 
   dynamic "rule" {

@@ -34,14 +34,14 @@ module "aws_s3" {
       "storage_class" : "STANDARD_IA"
     }],
     "noncurrent_version_expiration_days" : 92
-  },
-  {
-    "prefix" : "staged2/",
-    "enabled" : false,
-    "expiration" : [{
-      "days" : 30,
-      "expired_object_delete_marker" : true
-    }]
+    },
+    {
+      "prefix" : "staged2/",
+      "enabled" : false,
+      "expiration" : [{
+        "days" : 30,
+        "expired_object_delete_marker" : true
+      }]
   }]
   enable_bucket_notification = true
 }
