@@ -10,7 +10,7 @@ variable "tags" {
 }
 
 variable "lifecycle_rule" {
-  type        = list(any)
+  type        = any
   description = "Controlling bucket lifecycle rules, zero or more supported [doc](docs/lifecycle_rule.md)"
   default     = []
 }
