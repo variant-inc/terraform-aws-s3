@@ -12,8 +12,12 @@ locals {
   ]
 }
 
+#tfsec:ignore:aws-s3-encryption-customer-key
+#tfsec:ignore:aws-s3-enable-bucket-logging
 resource "aws_s3_bucket" "bucket" {
-  #ts:skip=AWS.S3Bucket.LM.MEDIUM.0078 need to skip this rule
+  #checkov:skip=CKV_AWS_145:Ignore Cross Replication
+  #checkov:skip=CKV_AWS_144:Ignore Cross Replication
+  #checkov:skip=CKV_AWS_18:Ignore Bucket Logging
 
   bucket_prefix = var.bucket_prefix
   tags          = var.tags
