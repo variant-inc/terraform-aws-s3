@@ -33,7 +33,9 @@ jobs:
           unzip tflint.zip && rm tflint.zip
           mv tflint $HOME/.local/bin/
 
-          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+          TRIVY_VERSION="$(curl -sfSL https://api.github.com/repos/aquasecurity/trivy/releases/latest | jq -r '.tag_name' | tr -d 'v')"
+          curl -sfSL "https://github.com/aquasecurity/trivy/releases/download/v"$TRIVY_VERSION"/trivy_"$TRIVY_VERSION"_Linux-64bit.deb" > trivy.deb
+          sudo dpkg -i trivy.deb
 
           pip3 install checkov
       - uses: pre-commit/action@v3.0.0
