@@ -5,7 +5,7 @@ module "aws_s3" {
   #checkov:skip=CKV_AWS_145:Example bucket
   source = "../../"
 
-  bucket_prefix = "test-bucket-"
+  bucket_prefix = "test-bucket"
   force_destroy = false
 
   tags = {
@@ -21,31 +21,34 @@ module "aws_s3" {
     }
   ]
 
-  lifecycle_rule = [{
-    "prefix" : "staged/",
-    "enabled" : true,
-    "abort_incomplete_multipart_upload_days" : 1,
-    "expiration" : [{
-      "days" : 183,
-      "expired_object_delete_marker" : true
-    }],
-    "transition_storage_class" : [{
-      "days" : 7,
-      "storage_class" : "INTELLIGENT_TIERING"
-    }],
-    "noncurrent_version_transition" : [{
-      "days" : 15,
-      "storage_class" : "STANDARD_IA"
-    }],
-    "noncurrent_version_expiration_days" : 92
+  default_expiration = {
+    enabled = true
+    days    = 50
+  }
+
+  lifecycle_rule = [
+    {
+      "prefix" : "staged/",
+      "enabled" : true,
+      "abort_incomplete_multipart_upload_days" : 1,
+      "expiration_days" : 30
     },
     {
-      "prefix" : "staged2/",
-      "enabled" : false,
-      "expiration" : [{
-        "days" : 30,
-        "expired_object_delete_marker" : true
-      }]
-  }]
-  enable_bucket_notification = true
+      "enabled" : true,
+      "noncurrent_version_transition" : [{
+        "days" : 15
+      }],
+      "noncurrent_version_expiration_days" : 20,
+      "transition_storage_class" : [
+        {
+          "days" : 50,
+          "storage_class" : "STANDARD_IA"
+        },
+        {
+          "days" : 81,
+          "storage_class" : "GLACIER"
+        }
+      ]
+    }
+  ]
 }

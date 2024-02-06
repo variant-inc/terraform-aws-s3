@@ -32,3 +32,12 @@ variable "external_accounts" {
   description = "List of external account for bucket read only access"
   default     = []
 }
+
+variable "default_expiration" {
+  type        = any
+  description = "Enable or disable default lifecycle policy for expiring objects and set days, enabled by default and expire objects after 180 days"
+  default = {
+    enabled = true
+    days    = 180
+  }
+}
