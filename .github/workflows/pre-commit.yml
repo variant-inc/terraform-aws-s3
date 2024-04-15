@@ -38,4 +38,4 @@ jobs:
           sudo dpkg -i trivy.deb
 
           pip3 install checkov
-      - uses: pre-commit/action@v3.0.0
+      - uses: pre-commit/action@v3.0.1
