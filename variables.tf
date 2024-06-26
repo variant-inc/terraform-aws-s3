@@ -41,3 +41,9 @@ variable "default_expiration" {
     days    = 180
   }
 }
+
+variable "versioning_status" {
+  type        = string
+  description = "Control versioning status of bucket. Default: Enabled, Options: Enabled, Suspended, or Disabled"
+  default     = "Enabled"
+}
