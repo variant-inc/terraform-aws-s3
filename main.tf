@@ -32,6 +32,7 @@ resource "aws_s3_bucket" "bucket" {
 
 #tfsec:ignore:aws-s3-encryption-customer-key
 resource "aws_s3_bucket_server_side_encryption_configuration" "bucket" {
+  #checkov:skip=CKV2_AWS_67: Ignore CMK encryption
   bucket = aws_s3_bucket.bucket.id
 
   rule {
@@ -44,7 +45,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket" {
 resource "aws_s3_bucket_versioning" "bucket" {
   bucket = aws_s3_bucket.bucket.id
   versioning_configuration {
-    status = "Enabled"
+    status = var.versioning_status
   }
 }
 

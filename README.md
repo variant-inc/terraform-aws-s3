@@ -43,6 +43,7 @@
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Allow force destruction of bucket, allows destroy even when bucket is not empty | `bool` | `false` | no |
 | <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | Controlling bucket lifecycle rules, zero or more supported [doc](docs/lifecycle\_rule.md) | `any` | `[]` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags for S3 bucket | `map(string)` | `{}` | no |
+| <a name="input_versioning_status"></a> [versioning\_status](#input\_versioning\_status) | Control versioning status of bucket. Default: Enabled, Options: Enabled, Suspended, or Disabled | `string` | `"Enabled"` | no |
 
 ## Outputs
 
